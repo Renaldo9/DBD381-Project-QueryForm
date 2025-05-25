@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage <%= collection.charAt(0).toUpperCase() + collection.slice(1) %></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <nav class="navbar">
+    <a href="/" class="navbar-item">Home</a>
+    <% collections.forEach(col => { %>
+      <a href="/<%= col %>" class="navbar-item <%= col === collection ? 'active' : '' %>">
+        <%= col.charAt(0).toUpperCase() + col.slice(1) %>
+      </a>
+    <% }); %>
+  </nav>
+  <main>
+    <h1>Manage <%= collection.charAt(0).toUpperCase() + collection.slice(1) %></h1>
+
+    <!-- Search Form -->
+    <h2>Search</h2>
+    <form action="/<%= collection %>" method="get">
+      <label>Search <%= collection %>:
+        <input type="text" name="search" placeholder="<%= collection === 'product_categories' ? 'Search by name' : collection === 'users' ? 'Search by first name, last name, or email' : collection === 'addresses' ? 'Search by street or city' : collection === 'products' ? 'Search by name' : 'Search (lists all records)' %>" value="<%= searchQuery %>">
+      </label>
+      <button type="submit">Search</button>
+    </form>
+
+    <!-- Insert Form -->
+    <h2>Insert New Record</h2>
+    <form action="/<%= collection %>" method="post">
+      <input type="hidden" name="action" value="insert">
+      <label>ID (optional): <input type="text" name="id" placeholder="24-character hexadecimal, e.g., 66520000123456789abc0007"></label>
+      <% if (collection === 'product_categories') { %>
+        <label>Name: <input type="text" name="name" required></label>
+        <label>Slug: <input type="text" name="slug" required></label>
+        <label>Description: <textarea name="description"></textarea></label>
+        <label>Created At: <input type="datetime-local" name="createdAt" required></label>
+      <% } else if (collection === 'users') { %>
+        <label>First Name: <input type="text" name="firstName" required></label>
+        <label>Last Name: <input type="text" name="lastName" required></label>
+        <label>Email: <input type="email" name="email" required></label>
+        <label>Phone: <input type="text" name="phone"></label>
+        <label>Password Hash: <input type="text" name="passwordHash" required></label>
+        <label>Default Address ID: <input type="text" name="defaultAddressId"></label>
+        <label>Loyalty Points: <input type="number" name="loyaltyPoints" value="0"></label>
+        <label>Created At: <input type="datetime-local" name="createdAt" required></label>
+        <label>Role: 
+          <select name="role">
+            <option value="customer">Customer</option>
+            <option value="admin">Admin</option>
+            <option value="vendor">Vendor</option>
+          </select>
+        </label>
+        <label>Is Verified: <input type="checkbox" name="isVerified"></label>
+      <% } else if (collection === 'addresses') { %>
+        <label>User ID: <input type="text" name="userId" required></label>
+        <label>Label: <input type="text" name="label" required></label>
+        <label>Street: <input type="text" name="street" required></label>
+        <label>Suburb: <input type="text" name="suburb"></label>
+        <label>City: <input type="text" name="city" required></label>
+        <label>Province: <input type="text" name="province"></label>
+        <label>Postal Code: <input type="text" name="postalCode"></label>
+        <label>Country: <input type="text" name="country" value="South Africa"></label>
+        <label>Is Primary: <input type="checkbox" name="isPrimary"></label>
+        <label>Location (JSON): <textarea name="location">{ "type": "Point", "coordinates": [0, 0] }</textarea></label>
+      <% } else if (collection === 'products') { %>
+        <label>Name: <input type="text" name="name" required></label>
+        <label>Description: <textarea name="description"></textarea></label>
+        <label>Price ZAR: <input type="number" name="priceZAR" required></label>
+        <label>VAT: <input type="number" name="VAT" step="0.01" value="0.15"></label>
+        <label>Category ID: <input type="text" name="categoryId" required></label>
+        <label>Variants (JSON): <textarea name="variants">[]</textarea></label>
+        <label>Images (JSON): <textarea name="images">[]</textarea></label>
+        <label>Tags (JSON): <textarea name="tags">[]</textarea></label>
+        <label>Created At: <input type="datetime-local" name="createdAt" required></label>
+        <label>Is Active: <input type="checkbox" name="isActive" checked></label>
+      <% } else if (collection === 'orders') { %>
+        <label>User ID: <input type="text" name="userId" required></label>
+        <label>Items (JSON): <textarea name="items">[]</textarea></label>
+        <label>Total Amount ZAR: <input type="number" name="totalAmountZAR" required></label>
+        <label>Shipping Address ID: <input type="text" name="shippingAddressId" required></label>
+        <label>Status: 
+          <select name="status">
+            <option value="pending">Pending</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        </label>
+        <label>Created At: <input type="datetime-local" name="createdAt" required></label>
+        <label>Updated At: <input type="datetime-local" name="updatedAt" required></label>
+      <% } else if (collection === 'payments') { %>
+        <label>Order ID: <input type="text" name="orderId" required></label>
+        <label>User ID: <input type="text" name="userId" required></label>
+        <label>Amount ZAR: <input type="number" name="amountZAR" required></label>
+        <label>Payment Method: 
+          <select name="paymentMethod">
+            <option value="credit_card">Credit Card</option>
+            <option value="eft">EFT</option>
+          </select>
+        </label>
+        <label>Transaction ID: <input type="text" name="transactionId" required></label>
+        <label>Status: 
+          <select name="status">
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+            <option value="failed">Failed</option>
+          </select>
+        </label>
+        <label>Created At: <input type="datetime-local" name="createdAt" required></label>
+      <% } else if (collection === 'reviews') { %>
+        <label>Product ID: <input type="text" name="productId" required></label>
+        <label>User ID: <input type="text" name="userId" required></label>
+        <label>Rating: <input type="number" name="rating" min="1" max="5" required></label>
+        <label>Comment: <textarea name="comment"></textarea></label>
+        <label>Created At: <input type="datetime-local" name="createdAt" required></label>
+        <label>Is Verified Purchase: <input type="checkbox" name="isVerifiedPurchase"></label>
+      <% } else if (collection === 'cart') { %>
+        <label>User ID: <input type="text" name="userId" required></label>
+        <label>Items (JSON): <textarea name="items">[]</textarea></label>
+        <label>Created At: <input type="datetime-local" name="createdAt" required></label>
+        <label>Updated At: <input type="datetime-local" name="updatedAt" required></label>
+      <% } %>
+      <button type="submit">Insert</button>
+    </form>
+
+    <!-- Existing Records -->
+    <h2>Existing Records</h2>
+    <div class="records-grid">
+      <% records.forEach(record => { %>
+        <div class="record-container">
+          <div class="record-id">ID: <%= record._id %></div>
+          <form action="/<%= collection %>" method="post" class="record-card">
+            <input type="hidden" name="id" value="<%= record._id %>">
+            <input type="hidden" name="action" value="update">
+            <label>ID: <input type="text" name="newId" value="<%= record._id %>" placeholder="24-character hexadecimal, e.g., 66520000123456789abc0007"></label>
+            <% if (collection === 'product_categories') { %>
+              <label>Name: <input type="text" name="name" value="<%= record.name %>" required></label>
+              <label>Slug: <input type="text" name="slug" value="<%= record.slug %>" required></label>
+              <label>Description: <textarea name="description"><%= record.description %></textarea></label>
+              <label>Created At: <input type="datetime-local" name="createdAt" value="<%= new Date(record.createdAt).toISOString().slice(0,16) %>" required></label>
+            <% } else if (collection === 'users') { %>
+              <label>First Name: <input type="text" name="firstName" value="<%= record.firstName %>" required></label>
+              <label>Last Name: <input type="text" name="lastName" value="<%= record.lastName %>" required></label>
+              <label>Email: <input type="email" name="email" value="<%= record.email %>" required></label>
+              <label>Phone: <input type="text" name="phone" value="<%= record.phone %>"></label>
+              <label>Password Hash: <input type="text" name="passwordHash" value="<%= record.passwordHash %>" required></label>
+              <label>Default Address ID: <input type="text" name="defaultAddressId" value="<%= record.defaultAddressId %>"></label>
+              <label>Loyalty Points: <input type="number" name="loyaltyPoints" value="<%= record.loyaltyPoints %>"></label>
+              <label>Created At: <input type="datetime-local" name="createdAt" value="<%= new Date(record.createdAt).toISOString().slice(0,16) %>" required></label>
+              <label>Role: 
+                <select name="role">
+                  <option value="customer" <%= record.role === 'customer' ? 'selected' : '' %>>Customer</option>
+                  <option value="admin" <%= record.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                  <option value="vendor" <%= record.role === 'vendor' ? 'selected' : '' %>>Vendor</option>
+                </select>
+              </label>
+              <label>Is Verified: <input type="checkbox" name="isVerified" <%= record.isVerified ? 'checked' : '' %>></label>
+            <% } else if (collection === 'addresses') { %>
+              <label>User ID: <input type="text" name="userId" value="<%= record.userId %>" required></label>
+              <label>Label: <input type="text" name="label" value="<%= record.label %>" required></label>
+              <label>Street: <input type="text" name="street" value="<%= record.street %>" required></label>
+              <label>Suburb: <input type="text" name="suburb" value="<%= record.suburb %>"></label>
+              <label>City: <input type="text" name="city" value="<%= record.city %>" required></label>
+              <label>Province: <input type="text" name="province" value="<%= record.province %>"></label>
+              <label>Postal Code: <input type="text" name="postalCode" value="<%= record.postalCode %>"></label>
+              <label>Country: <input type="text" name="country" value="<%= record.country %>"></label>
+              <label>Is Primary: <input type="checkbox" name="isPrimary" <%= record.isPrimary ? 'checked' : '' %>></label>
+              <label>Location (JSON): <textarea name="location"><%= JSON.stringify(record.location) %></textarea></label>
+            <% } else if (collection === 'products') { %>
+              <label>Name: <input type="text" name="name" value="<%= record.name %>" required></label>
+              <label>Description: <textarea name="description"><%= record.description %></textarea></label>
+              <label>Price ZAR: <input type="number" name="priceZAR" value="<%= record.priceZAR %>" required></label>
+              <label>VAT: <input type="number" name="VAT" value="<%= record.VAT %>" step="0.01"></label>
+              <label>Category ID: <input type="text" name="categoryId" value="<%= record.categoryId %>" required></label>
+              <label>Variants (JSON): <textarea name="variants"><%= JSON.stringify(record.variants) %></textarea></label>
+              <label>Images (JSON): <textarea name="images"><%= JSON.stringify(record.images) %></textarea></label>
+              <label>Tags (JSON): <textarea name="tags"><%= JSON.stringify(record.tags) %></textarea></label>
+              <label>Created At: <input type="datetime-local" name="createdAt" value="<%= new Date(record.createdAt).toISOString().slice(0,16) %>" required></label>
+              <label>Is Active: <input type="checkbox" name="isActive" <%= record.isActive ? 'checked' : '' %>></label>
+            <% } else if (collection === 'orders') { %>
+              <label>User ID: <input type="text" name="userId" value="<%= record.userId %>" required></label>
+              <label>Items (JSON): <textarea name="items"><%= JSON.stringify(record.items) %></textarea></label>
+              <label>Total Amount ZAR: <input type="number" name="totalAmountZAR" value="<%= record.totalAmountZAR %>" required></label>
+              <label>Shipping Address ID: <input type="text" name="shippingAddressId" value="<%= record.shippingAddressId %>" required></label>
+              <label>Status: 
+                <select name="status">
+                  <option value="pending" <%= record.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="shipped" <%= record.status === 'shipped' ? 'selected' : '' %>>Shipped</option>
+                  <option value="delivered" <%= record.status === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                </select>
+              </label>
+              <label>Created At: <input type="datetime-local" name="createdAt" value="<%= new Date(record.createdAt).toISOString().slice(0,16) %>" required></label>
+              <label>Updated At: <input type="datetime-local" name="updatedAt" value="<%= new Date(record.updatedAt).toISOString().slice(0,16) %>" required></label>
+            <% } else if (collection === 'payments') { %>
+              <label>Order ID: <input type="text" name="orderId" value="<%= record.orderId %>" required></label>
+              <label>User ID: <input type="text" name="userId" value="<%= record.userId %>" required></label>
+              <label>Amount ZAR: <input type="number" name="amountZAR" value="<%= record.amountZAR %>" required></label>
+              <label>Payment Method: 
+                <select name="paymentMethod">
+                  <option value="credit_card" <%= record.paymentMethod === 'credit_card' ? 'selected' : '' %>>Credit Card</option>
+                  <option value="eft" <%= record.paymentMethod === 'eft' ? 'selected' : '' %>>EFT</option>
+                </select>
+              </label>
+              <label>Transaction ID: <input type="text" name="transactionId" value="<%= record.transactionId %>" required></label>
+              <label>Status: 
+                <select name="status">
+                  <option value="pending" <%= record.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                  <option value="completed" <%= record.status === 'completed' ? 'selected' : '' %>>Completed</option>
+                  <option value="failed" <%= record.status === 'failed' ? 'selected' : '' %>>Failed</option>
+                </select>
+              </label>
+              <label>Created At: <input type="datetime-local" name="createdAt" value="<%= new Date(record.createdAt).toISOString().slice(0,16) %>" required></label>
+            <% } else if (collection === 'reviews') { %>
+              <label>Product ID: <input type="text" name="productId" value="<%= record.productId %>" required></label>
+              <label>User ID: <input type="text" name="userId" value="<%= record.userId %>" required></label>
+              <label>Rating: <input type="number" name="rating" value="<%= record.rating %>" min="1" max="5" required></label>
+              <label>Comment: <textarea name="comment"><%= record.comment %></textarea></label>
+              <label>Created At: <input type="datetime-local" name="createdAt" value="<%= new Date(record.createdAt).toISOString().slice(0,16) %>" required></label>
+              <label>Is Verified Purchase: <input type="checkbox" name="isVerifiedPurchase" <%= record.isVerifiedPurchase ? 'checked' : '' %>></label>
+            <% } else if (collection === 'cart') { %>
+              <label>User ID: <input type="text" name="userId" value="<%= record.userId %>" required></label>
+              <label>Items (JSON): <textarea name="items"><%= JSON.stringify(record.items) %></textarea></label>
+              <label>Created At: <input type="datetime-local" name="createdAt" value="<%= new Date(record.createdAt).toISOString().slice(0,16) %>" required></label>
+              <label>Updated At: <input type="datetime-local" name="updatedAt" value="<%= new Date(record.updatedAt).toISOString().slice(0,16) %>" required></label>
+            <% } %>
+            <button type="submit">Update</button>
+            <button type="button" onclick="deleteRecord('<%= record._id %>')">Delete</button>
+          </form>
+        </div>
+      <% }); %>
+    </div>
+
+    <script>
+    function deleteRecord(id) {
+      if (confirm('Are you sure you want to delete this record?')) {
+        const form = document.createElement('form');
+        form.method = 'post';
+        form.action = '/<%= collection %>';
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'delete';
+        const idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'id';
+        idInput.value = id;
+        form.appendChild(actionInput);
+        form.appendChild(idInput);
+        document.body.appendChild(form);
+        form.submit();
+      }
+    }
+    </script>
+  </main>
+</body>
+</html>

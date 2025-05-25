@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-commerce Database Management</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main>
+    <h1>E-commerce Database Management</h1>
+    <p>Select a collection to manage:</p>
+    <nav class="collection-grid">
+      <% collections.forEach(collection => { %>
+        <a href="/<%= collection %>" class="collection-card">
+          <%= collection.charAt(0).toUpperCase() + collection.slice(1) %>
+        </a>
+      <% }); %>
+    </nav>
+  </main>
+</body>
+</html>
