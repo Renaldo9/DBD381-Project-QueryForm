@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= collection %></title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  
+  <nav class="navbar">
+    <a href="/" class="navbar-item">Home</a>
+    <% collections.forEach(col => { %>
+      <a href="/<%= col %>" class="navbar-item <%= col === collection ? 'active' : '' %>">
+        <%= col.charAt(0).toUpperCase() + col.slice(1) %>
+      </a>
+    <% }); %>
+    <% views.forEach(collection => { %>
+        <a href="/<%= collection %>" class="navbar-item">
+          <%= collection.charAt(0).toUpperCase() + collection.slice(1) %>
+        </a>
+      <% }); %>
+  </nav>
+  <main>
+  <h1><%= collection.charAt(0).toUpperCase() + collection.slice(1) %></h1>
+  <!-- Search Form -->
+  <form method="get" action="/<%= collection %>">
+    <input type="text" name="search" value="<%= searchQuery %>" placeholder="Name...">
+    <button type="submit">Search</button>
+  </form>
+
+  <!-- Records Table -->
+  <table border="1">
+    <thead>
+      <tr>
+        <% if (collection === 'view_product_overview_with_reviews') { %>
+          <th>_id</th>
+          <th>Name</th>
+          <th>Price (ZAR)</th>
+          <th>Average Rating</th>
+          <th>Review Count</th>
+          <th>Total Stock</th>
+        <% } else if (collection === 'view_user_order_totals') { %>
+          <th>Email</th>
+          <th>Full Name</th>
+          <th>Total Orders</th>
+          <th>Total Amount Spent</th>
+        <% } else { %>
+          <!-- Default headers for collections (customize based on collection fields) -->
+          <th>_id</th>
+          <th>Data</th>
+        <% } %>
+      </tr>
+    </thead>
+    <tbody>
+      <% records.forEach(record => { %>
+        <tr>
+          <% if (collection === 'view_product_overview_with_reviews') { %>
+            <td><%= record._id %></td>
+            <td><%= record.name %></td>
+            <td class="currency numeric"><%= record.priceZAR %></td>
+            <td class="numeric"><%= record.avgRating %></td>
+            <td class="numeric"><%= record.reviewCount %></td>
+            <td class="numeric"><%= record.totalStock %></td>
+          <% } else if (collection === 'view_user_order_totals') { %>
+            <td><%= record.email %></td>
+            <td><%= record.fullName %></td>
+            <td class="numeric"><%= record.totalOrders %></td>
+            <td class="currency numeric"><%= record.totalAmountSpent %></td>
+          <% } else { %>
+            <!-- Default rendering for collections (customize as needed) -->
+            <td><%= record._id %></td>
+            <td><%= JSON.stringify(record) %></td>
+          <% } %>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+  </main>
+</body>
+</html>

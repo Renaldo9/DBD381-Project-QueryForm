@@ -14,6 +14,11 @@
         <%= col.charAt(0).toUpperCase() + col.slice(1) %>
       </a>
     <% }); %>
+    <% views.forEach(collection => { %>
+        <a href="/<%= collection %>" class="navbar-item">
+          <%= collection.charAt(0).toUpperCase() + collection.slice(1) %>
+        </a>
+      <% }); %>
   </nav>
   <main>
     <h1>Manage <%= collection.charAt(0).toUpperCase() + collection.slice(1) %></h1>

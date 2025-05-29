@@ -2,6 +2,7 @@ const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const dotenv = require('dotenv');
 const path = require('path');
+const { name } = require('ejs');
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Collections to manage
 const collections = ['product_categories', 'users', 'addresses', 'products', 'orders', 'payments', 'reviews', 'cart'];
+const views = ['view_product_overview_with_reviews', 'view_user_order_totals'];
 
 // Connect to MongoDB Atlas
 let db;
@@ -40,7 +42,7 @@ function isValidObjectId(id) {
 
 // Home route
 app.get('/', (req, res) => {
-  res.render('index', { collections });
+  res.render('index', { collections, views });
 });
 
 // Generic CRUD route for each collection
@@ -66,11 +68,15 @@ collections.forEach(collection => {
           ] };
         } else if (collection === 'products') {
           query = { name: { $regex: searchQuery, $options: 'i' } };
+        } else if (collection === 'view_product_overview_with_reviews') {
+          query = { name: { $regex: searchQuery, $options: 'i' } };
+        } else if (collection === 'view_user_order_totals') {
+          query = { fullName: { $regex: searchQuery, $options: 'i' } };
         }
       }
 
       const records = await db.collection(collection).find(query).toArray();
-      res.render('collection', { collection, records, searchQuery, collections });
+      res.render('collection', { collection, records, searchQuery, collections, views });
     } catch (err) {
       res.status(500).send(`Error fetching ${collection}: ${err.message}`);
     }
@@ -244,6 +250,38 @@ collections.forEach(collection => {
       res.redirect(`/${collection}`);
     } catch (err) {
       res.status(500).send(`Error processing ${collection} action: ${err.message}`);
+    }
+  });
+});
+
+//Views
+// Routes for MongoDB views
+views.forEach(view => {
+  app.get(`/${view}`, async (req, res) => {
+    try {
+      const searchQuery = req.query.search || '';
+      let query = {};
+      if (searchQuery) {
+        if (view === 'view_product_overview_with_reviews') {
+          query = { 
+            $or: [
+              { name: { $regex: searchQuery, $options: 'i' } }
+            ]
+          };
+        } else if (view === 'view_user_order_totals') {
+          query = { 
+            $or: [
+              { email: { $regex: searchQuery, $options: 'i' } },
+              { fullName: { $regex: searchQuery, $options: 'i' } }
+            ]
+          };
+        }
+      }
+
+      const records = await db.collection(view).find(query).toArray();
+      res.render('views', { collection: view, records, searchQuery, collections, views });
+    } catch (err) {
+      res.status(500).send(`Error fetching ${view}: ${err.message}`);
     }
   });
 });

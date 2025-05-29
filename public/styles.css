@@ -90,6 +90,7 @@ main {
   color: #2d3748;
   text-align: center;
   transition: transform 0.2s, box-shadow 0.2s;
+  
 }
 
 .collection-card:hover {
@@ -183,6 +184,64 @@ button[type="button"]:hover {
   gap: 0.5rem;
 }
 
+/* General table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-family: Arial, sans-serif;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Table headers */
+th {
+  background-color: #2c3e50;
+  color: #ffffff;
+  padding: 12px 15px;
+  text-align: left;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+
+/* Table cells */
+td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+  color: #333333;
+}
+
+/* Alternating row colors */
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Hover effect on rows */
+tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Currency formatting (for priceZAR, totalAmountSpent) */
+td.currency::before {
+  content: 'R';
+  margin-right: 4px;
+}
+
+/* Specific column styling for numeric fields */
+td.numeric {
+  text-align: right;
+}
+
+/* Styling for no-results message */
+.no-results {
+  color: #e74c3c;
+  font-size: 16px;
+  margin: 20px 0;
+  text-align: center;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   main {
@@ -222,5 +281,42 @@ button[type="button"]:hover {
 
   .records-grid {
     grid-template-columns: 1fr;
+  }
+
+  table {
+    font-size: 12px;
+  }
+  
+  th, td {
+    padding: 8px;
+  }
+  
+  /* Stack table for very small screens */
+  table, thead, tbody, th, td, tr {
+    display: block;
+  }
+  
+  thead {
+    display: none; /* Hide headers on small screens */
+  }
+  
+  tr {
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  
+  td {
+    position: relative;
+    padding-left: 50%;
+    text-align: left;
+  }
+  
+  td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 10px;
+    width: 45%;
+    font-weight: bold;
+    text-transform: uppercase;
   }
 }

@@ -16,6 +16,11 @@
           <%= collection.charAt(0).toUpperCase() + collection.slice(1) %>
         </a>
       <% }); %>
+      <% views.forEach(collection => { %>
+        <a href="/<%= collection %>" class="collection-card">
+          <%= collection.charAt(0).toUpperCase() + collection.slice(1) %>
+        </a>
+      <% }); %>
     </nav>
   </main>
 </body>
